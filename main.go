@@ -74,6 +74,11 @@ func main() {
 				Usage:   "TLS key",
 				EnvVars: []string{"PLUGIN_TLS_KEY"},
 			},
+			&cli.BoolFlag{
+				Name:    "error-exit",
+				Usage:   "exit script on command error",
+				EnvVars: []string{"PLUGIN_ERROR_EXIT"},
+			},
 			&cli.StringSliceFlag{
 				Name:    "script",
 				Usage:   "execute commands",
@@ -120,6 +125,7 @@ func run(c *cli.Context) error {
 			tlsCACert:  c.String("tls-ca-cert"),
 			tlsCert:    c.String("tls-cert"),
 			tlsKey:     c.String("tls-key"),
+			errorExit:  c.Bool("error-exit"),
 			script:     c.StringSlice("script"),
 		},
 	}

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"os/exec"
 	"strings"
 
 	"github.com/sirupsen/logrus"
@@ -11,20 +12,24 @@ import (
 
 type dockerHost interface {
 	env(contextDir string) (map[string]string, error)
-	clean(dir string) error
+	clean() error
 }
 
 type (
 	config struct {
 		contextDir string
 		host       string
-		sshUser    string
-		sshKey     string
-		tlsVerify  bool
-		tlsCACert  string
-		tlsCert    string
-		tlsKey     string
-		script     []string
+
+		sshUser string
+		sshKey  string
+
+		tlsVerify bool
+		tlsCACert string
+		tlsCert   string
+		tlsKey    string
+
+		errorExit bool
+		script    []string
 	}
 
 	plugin struct {
@@ -76,7 +81,7 @@ func (p *plugin) initDockerHost() error {
 func (p *plugin) getContextDir() (string, error) {
 	if p.config.contextDir != "" {
 		contextDir := p.config.contextDir
-		err := os.MkdirAll(contextDir, os.ModePerm)
+		err := os.MkdirAll(contextDir, 0700)
 		if err != nil {
 			logrus.Errorf("Create context directory failed: %s", err)
 			return "", err
@@ -94,6 +99,30 @@ func (p *plugin) getContextDir() (string, error) {
 }
 
 func (p *plugin) executeScript(envs map[string]string) error {
+	args := []string{"-c", "-x"}
+
+	if p.config.errorExit {
+		args = append(args, "-e")
+	}
+
+	fullScript := strings.Join(p.config.script, "\n")
+	args = append(args, fullScript)
+
+	fullEnv := os.Environ()
+	for k, v := range envs {
+		fullEnv = append(fullEnv, k+"="+v)
+	}
+
+	cmd := exec.Command("/bin/sh", args...)
+	cmd.Env = fullEnv
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+
+	err := cmd.Run()
+	if err != nil {
+		logrus.Errorf("Script execution error: %s", err)
+		return err
+	}
 	return nil
 }
 
@@ -125,6 +154,11 @@ func (p *plugin) exec() error {
 	logrus.Infof("Env for docker remote: %s", envs)
 
 	err = p.executeScript(envs)
+	if err != nil {
+		return err
+	}
+
+	err = p.dockerHost.clean()
 	if err != nil {
 		return err
 	}
