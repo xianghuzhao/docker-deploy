@@ -14,8 +14,8 @@ var (
 
 func main() {
 	app := &cli.App{
-		Name:    "docker remote plugin",
-		Usage:   "docker remote plugin",
+		Name:    "Docker Remote Plugin",
+		Usage:   "Run docker commands on remote host mainly used as a drone plugin",
 		Action:  run,
 		Version: version,
 		Flags: []cli.Flag{
@@ -48,11 +48,6 @@ func main() {
 				Usage:   "docker host",
 				Aliases: []string{"H"},
 				EnvVars: []string{"PLUGIN_HOST"},
-			},
-			&cli.StringFlag{
-				Name:    "ssh-user",
-				Usage:   "SSH username",
-				EnvVars: []string{"PLUGIN_SSH_USER"},
 			},
 			&cli.StringFlag{
 				Name:    "ssh-key",
@@ -125,7 +120,6 @@ func run(c *cli.Context) error {
 			contextDir:  c.String("context-dir"),
 			keepContext: c.Bool("keep-context"),
 			host:        c.String("host"),
-			sshUser:     c.String("ssh-user"),
 			sshKey:      c.String("ssh-key"),
 			tlsVerify:   c.Bool("tls-verify"),
 			tlsCACert:   c.String("tls-ca-cert"),

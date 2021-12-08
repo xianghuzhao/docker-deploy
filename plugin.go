@@ -21,8 +21,7 @@ type (
 		keepContext bool
 		host        string
 
-		sshUser string
-		sshKey  string
+		sshKey string
 
 		tlsVerify bool
 		tlsCACert string
