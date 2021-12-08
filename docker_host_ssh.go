@@ -101,7 +101,7 @@ func (h *dockerHostSSH) createSSHKey() error {
 func (h *dockerHostSSH) createSSHConfig() error {
 	h.hostInfo.configPath = path.Join(h.hostInfo.workDir, "ssh_host_config")
 
-	h.hostInfo.hostSection = "docker-remote-" + fmt.Sprint(time.Now().UnixMicro())
+	h.hostInfo.hostSection = "docker-remote-" + fmt.Sprint(time.Now().UnixNano())
 
 	configFragments := []string{"Host " + h.hostInfo.hostSection}
 	if h.hostInfo.hostName != "" {
