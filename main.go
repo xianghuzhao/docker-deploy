@@ -38,6 +38,11 @@ func main() {
 				Usage:   "context file directory",
 				EnvVars: []string{"PLUGIN_CONTEXT_DIR"},
 			},
+			&cli.BoolFlag{
+				Name:    "keep-context",
+				Usage:   "reserve context file after execution",
+				EnvVars: []string{"PLUGIN_KEEP_CONTEXT"},
+			},
 			&cli.StringFlag{
 				Name:    "host",
 				Usage:   "docker host",
@@ -117,16 +122,17 @@ func run(c *cli.Context) error {
 
 	p := &plugin{
 		config: config{
-			contextDir: c.String("context-dir"),
-			host:       c.String("host"),
-			sshUser:    c.String("ssh-user"),
-			sshKey:     c.String("ssh-key"),
-			tlsVerify:  c.Bool("tls-verify"),
-			tlsCACert:  c.String("tls-ca-cert"),
-			tlsCert:    c.String("tls-cert"),
-			tlsKey:     c.String("tls-key"),
-			errorExit:  c.Bool("error-exit"),
-			script:     c.StringSlice("script"),
+			contextDir:  c.String("context-dir"),
+			keepContext: c.Bool("keep-context"),
+			host:        c.String("host"),
+			sshUser:     c.String("ssh-user"),
+			sshKey:      c.String("ssh-key"),
+			tlsVerify:   c.Bool("tls-verify"),
+			tlsCACert:   c.String("tls-ca-cert"),
+			tlsCert:     c.String("tls-cert"),
+			tlsKey:      c.String("tls-key"),
+			errorExit:   c.Bool("error-exit"),
+			script:      c.StringSlice("script"),
 		},
 	}
 

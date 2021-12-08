@@ -17,8 +17,9 @@ type dockerHost interface {
 
 type (
 	config struct {
-		contextDir string
-		host       string
+		contextDir  string
+		keepContext bool
+		host        string
 
 		sshUser string
 		sshKey  string
@@ -126,6 +127,24 @@ func (p *plugin) executeScript(envs map[string]string) error {
 	return nil
 }
 
+func (p *plugin) clean(contextDir string) {
+	if p.config.keepContext {
+		return
+	}
+
+	err := p.dockerHost.clean()
+	if err != nil {
+		logrus.Errorf(`Clean docker host error: %s`, err)
+	}
+
+	if p.config.contextDir == "" && contextDir != "" {
+		err := os.RemoveAll(contextDir)
+		if err != nil {
+			logrus.Errorf(`Remove temp context directory "%s" error: %s`, contextDir, err)
+		}
+	}
+}
+
 // exec executes the docker commands with remote host
 func (p *plugin) exec() error {
 	var err error
@@ -147,6 +166,8 @@ func (p *plugin) exec() error {
 	}
 	logrus.Infof("Context directory for docker remote: %s", contextDir)
 
+	defer p.clean(contextDir)
+
 	envs, err := p.dockerHost.env(contextDir)
 	if err != nil {
 		return err
@@ -154,11 +175,6 @@ func (p *plugin) exec() error {
 	logrus.Infof("Env for docker remote: %s", envs)
 
 	err = p.executeScript(envs)
-	if err != nil {
-		return err
-	}
-
-	err = p.dockerHost.clean()
 	if err != nil {
 		return err
 	}
