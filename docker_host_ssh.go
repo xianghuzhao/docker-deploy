@@ -54,8 +54,8 @@ func (h *dockerHostSSH) parseHost() error {
 
 	h.hostInfo.hostName, h.hostInfo.port, err = net.SplitHostPort(u.Host)
 	if err != nil {
-		logrus.Errorf(`Host port parse error for "%s": %s`, u.Host, err)
-		return err
+		logrus.Debugf(`Host port parse error for "%s": %s`, u.Host, err)
+		h.hostInfo.hostName = u.Host
 	}
 
 	if h.hostInfo.hostName == "" {

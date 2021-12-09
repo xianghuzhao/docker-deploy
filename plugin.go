@@ -152,7 +152,7 @@ func (p *plugin) exec() error {
 	if err != nil {
 		return err
 	}
-	logrus.Infof("Scheme for docker host: %s", p.scheme)
+	logrus.Infof(`Scheme for docker host "%s": %s`, p.config.host, p.scheme)
 
 	err = p.initDockerHost()
 	if err != nil {
