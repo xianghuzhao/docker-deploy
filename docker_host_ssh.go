@@ -83,6 +83,7 @@ func (h *dockerHostSSH) createSSHKey() error {
 		return nil
 	}
 
+	// Make sure to write the ssh key with a trailing line feed
 	if h.sshKey[len(h.sshKey)-1] != '\n' {
 		h.sshKey += "\n"
 	}
